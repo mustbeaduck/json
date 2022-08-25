@@ -50,7 +50,7 @@ import (
 // Unmarshal stores one of these in the interface value:
 //
 //	bool, for JSON booleans
-//	float64, for JSON numbers
+//	string, for JSON numbers
 //	string, for JSON strings
 //	[]interface{}, for JSON arrays
 //	map[string]interface{}, for JSON objects
@@ -232,6 +232,7 @@ const phasePanicMsg = "JSON decoder out of sync - data changing underfoot?"
 func (d *decodeState) init(data []byte) *decodeState {
 	d.data = data
 	d.off = 0
+    d.useNumber = true
 	d.savedError = nil
 	if d.errorContext != nil {
 		d.errorContext.Struct = nil
@@ -843,7 +844,7 @@ func (d *decodeState) object(v reflect.Value) error {
 // depending on the setting of d.useNumber.
 func (d *decodeState) convertNumber(s string) (any, error) {
 	if d.useNumber {
-		return Number(s), nil
+		return s, nil
 	}
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
